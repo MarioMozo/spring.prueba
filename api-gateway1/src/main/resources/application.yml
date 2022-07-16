@@ -1,0 +1,10 @@
+ spring:
+  application:
+    name: test-application
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:8081/auth/realms/HtsRealm
+ server:
+  port: 8002

@@ -1,0 +1,48 @@
+erver:
+  port: 8000
+  
+spring:
+  application:
+    name: gateway-service
+  cloud:
+    gateway:
+      default-filters:
+        - TokenRelay
+      routes:
+      - id:  test-application
+        uri: http://localhost:8001/api/v1/test/**
+        predicates:
+          - Path=/api/v1/test/**
+        filters:
+          - RemoveRequestHeader=Cookie
+          - name: CircuitBreaker
+            args: 
+              name: htsCircuitBreaker
+              fallbackUri: forward:/general-fallback  
+          
+      - id:  test2-application
+        uri: http://localhost:8002/api/v1/test2/**
+        predicates:
+          - Path=/api/v1/test2/**        
+        filters:
+          - RemoveRequestHeader=Cookie
+          - name: CircuitBreaker
+            args: 
+              name: htsCircuitBreaker
+              fallbackUri: forward:/general-fallback   
+  security:
+    oauth2:
+      client:
+        provider:
+          keycloak:
+            token-uri: http://localhost:8081/auth/realms/HtsRealm/protocol/openid-connect/token
+            authorization-uri: http://localhost:8081/auth/realms/HtsRealm/protocol/openid-connect/auth
+            user-info-uri: http://localhost:8081/auth/realms/HtsRealm/protocol/openid-connect/userinfo 
+            user-name-attribute: preferred_username
+        registration:
+          keycloak-with-test-scope:
+            provider: keycloak
+            client-id: login
+            client-secret: z2ABrQakWOOtx7LsPwOiQA7lfK6VeGw8
+            authorization-grant-type: authorization_code
+            redirect-uri: "{baseUrl}/login/oauth2/code/keycloak"
